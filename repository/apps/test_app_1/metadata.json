@@ -1,0 +1,15 @@
+{
+    "slug": "test_app_1",
+    "name": "Test app 1",
+    "description": "The first test app",
+    "version": 1,
+    "icon": {
+        "16x16": "icon16.png",
+        "32x32": "icon32.png",
+        "64x64": "icon64.png"
+    },
+    "author": "Henk de Vries",
+    "license": "MIT",
+    "interpreter": "python",
+    "main": "main.py"
+}

@@ -1,0 +1,16 @@
+{
+  "name": "app-repository",
+  "version": "1.0.0",
+  "description": "Application repository",
+  "license": "MIT",
+  "author": "Nicolai Electronics",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "express-openapi-validator": "^5.4.6"
+  }
+}

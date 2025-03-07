@@ -1,0 +1,405 @@
+{
+    "openapi": "3.0.2",
+    "info": {
+        "title": "Application repository",
+        "version": "1.0.0",
+        "description": "Application repository API",
+        "contact": {
+            "name": "Nicolai Electronics",
+            "url": "https://nicolaielectronics.nl",
+            "email": "info@nicolaielectronics.nl"
+        },
+        "license": {
+            "name": "MIT License",
+            "url": "https://opensource.org/licenses/MIT"
+        }
+    },
+    "servers": [
+        {
+            "url": "https://apps.tanmatsu.cloud/v1",
+            "description": "Tanmatsu apps repository"
+        }
+    ],
+    "paths": {
+        "/apps/{slug}": {
+            "summary": "Request the metadata of a specific app",
+            "get": {
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/app"
+                                }
+                            }
+                        },
+                        "description": "A single app object"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/error"
+                                }
+                            }
+                        },
+                        "description": "App not found"
+                    }
+                }
+            }
+        },
+        "/apps": {
+            "summary": "Request a list of apps",
+            "get": {
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/app"
+                                    }
+                                }
+                            }
+                        },
+                        "description": "A list of app objects"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/error"
+                                }
+                            }
+                        },
+                        "description": "Category not found"
+                    }
+                }
+            },
+            "parameters": [
+                {
+                    "name": "amount",
+                    "description": "Maximum amount of apps to return",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "query",
+                    "required": false
+                },
+                {
+                    "name": "offset",
+                    "description": "Amount of apps to skip",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "query",
+                    "required": false
+                },
+                {
+                    "name": "category",
+                    "description": "Optional category filter",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": false
+                }
+            ]
+        },
+        "/apps/{slug}/files": {
+            "get": {
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/file"
+                                    }
+                                }
+                            }
+                        },
+                        "description": "A list of file objects"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/error"
+                                }
+                            }
+                        },
+                        "description": "App not found"
+                    }
+                }
+            }
+        },
+        "/categories": {
+            "summary": "Get the list of app categories",
+            "get": {
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        },
+                        "description": "List of category names"
+                    }
+                }
+            }
+        },
+        "/information": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/information"
+                                }
+                            }
+                        },
+                        "description": "Information about the repository"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "app": {
+                "description": "Basic information about an application package",
+                "required": [
+                    "slug",
+                    "name",
+                    "description",
+                    "version",
+                    "icon",
+                    "author",
+                    "license",
+                    "main"
+                ],
+                "type": "object",
+                "properties": {
+                    "slug": {
+                        "description": "Package name as alphanumeric with underscores lowercase name.",
+                        "maxLength": 32,
+                        "minLength": 1,
+                        "pattern": "^[a-z0-9_]+$",
+                        "type": "string",
+                        "example": "example_app"
+                    },
+                    "name": {
+                        "description": "Name of the application package as ASCII string",
+                        "maxLength": 128,
+                        "minLength": 3,
+                        "pattern": "^[A-Za-z0-9_\\- .!@#$%^&*()\\/\\\\]+$",
+                        "type": "string",
+                        "example": "Example app"
+                    },
+                    "description": {
+                        "description": "A short description of the app",
+                        "maxLength": 256,
+                        "minLength": 0,
+                        "pattern": "^[A-Za-z0-9_\\- .!@#$%^&*()\\/\\\\]+$",
+                        "type": "string",
+                        "example": "Demonstration app for demonstrating the API"
+                    },
+                    "version": {
+                        "description": "Latest published package version",
+                        "minimum": 1,
+                        "type": "integer",
+                        "example": "1"
+                    },
+                    "icon": {
+                        "$ref": "#/components/schemas/icon",
+                        "description": "Picture to be shown in the menu on the badge",
+                        "example": ""
+                    },
+                    "author": {
+                        "description": "Author of the app",
+                        "type": "string",
+                        "example": "Henk de Vries"
+                    },
+                    "license": {
+                        "description": "License of the app as SPDX license identifier",
+                        "type": "string",
+                        "example": "MIT"
+                    },
+                    "interpreter": {
+                        "description": "Slug name of the app which acts as interpreter for this app (optional)\n\nIf omitted the app is treated as a firmware binary type application which will be installed to the AppFS partition.",
+                        "maxLength": 16,
+                        "minLength": 1,
+                        "type": "string",
+                        "example": "my_interpreter"
+                    },
+                    "main": {
+                        "description": "Filename of the entrypoint of the app. If the interpreter property is set then this field must contain the filename of the script or executable to be executed by the interpreter. If the interpreter property is not set then this field must contain the filename of the firmware binary to run.",
+                        "maxLength": 16,
+                        "minLength": 1,
+                        "type": "string",
+                        "example": "example_app.bin"
+                    }
+                },
+                "example": {
+                    "slug": "my_app",
+                    "name": "My app",
+                    "description": "Demonstration app for demonstrating the API",
+                    "version": 1,
+                    "icon": {
+                        "16x16": "icon16.png",
+                        "32x32": "icon32.png",
+                        "64x64": "icon64.png"
+                    },
+                    "author": "Henk de Vries",
+                    "license": "MIT",
+                    "interpreter": "python",
+                    "main": "main.py"
+                }
+            },
+            "file": {
+                "description": "Description of a file",
+                "required": [
+                    "path",
+                    "size",
+                    "checksum",
+                    "flags"
+                ],
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "description": "",
+                        "type": "string",
+                        "example": "script.py"
+                    },
+                    "size": {
+                        "description": "",
+                        "type": "integer"
+                    },
+                    "checksum": {
+                        "description": "",
+                        "type": "integer"
+                    },
+                    "flags": {
+                        "$ref": "#/components/schemas/file_flags",
+                        "description": ""
+                    }
+                },
+                "example": {
+                    "path": "script.py",
+                    "size": 8,
+                    "checksum": 8,
+                    "flags": {
+                        "appfs": true,
+                        "icon": true,
+                        "skip": true
+                    }
+                }
+            },
+            "file_flags": {
+                "description": "Flags that can be set on a file",
+                "type": "object",
+                "properties": {
+                    "appfs": {
+                        "description": "Install the binary to AppFS instead of the FAT filesystem.",
+                        "type": "boolean"
+                    },
+                    "icon": {
+                        "description": "Set to true to allow the file to be skipped if the icon file is not a required size for the device the app is loaded onto.",
+                        "type": "boolean"
+                    },
+                    "skip": {
+                        "description": "Set to true to skip this file while downloading files to a device. This flag could for example be set on a readme or license text file.",
+                        "type": "boolean"
+                    }
+                }
+            },
+            "icon": {
+                "description": "",
+                "type": "object",
+                "properties": {
+                    "16x16": {
+                        "description": "",
+                        "type": "string"
+                    },
+                    "32x32": {
+                        "description": "",
+                        "type": "string"
+                    },
+                    "64x64": {
+                        "description": "",
+                        "type": "string"
+                    }
+                }
+            },
+            "error": {
+                "title": "Root Type for error",
+                "description": "",
+                "required": [
+                    "message",
+                    "errors"
+                ],
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "errors": {
+                        "type": "array",
+                        "items": {}
+                    }
+                },
+                "example": {
+                    "message": "not found",
+                    "errors": [
+                        {
+                            "path": "/path",
+                            "message": "not found"
+                        }
+                    ]
+                }
+            },
+            "information": {
+                "description": "Information about the repository",
+                "required": [
+                    "data_path"
+                ],
+                "type": "object",
+                "properties": {
+                    "data_path": {
+                        "description": "",
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}

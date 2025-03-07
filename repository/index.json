@@ -1,0 +1,18 @@
+{
+    "categories": {
+        "development": {
+            "name": "Development",
+            "apps": [
+                "camera_test",
+                "test_app_1",
+                "test_app_2"
+            ]
+        },
+        "hardware": {
+            "name": "Hardware",
+            "apps": [
+                "camera_test"
+            ]
+        }
+    }
+}
