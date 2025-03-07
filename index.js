@@ -3,6 +3,7 @@ import * as OpenApiValidator from 'express-openapi-validator';
 import Path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'node:fs/promises';
+import swagger_ui from 'swagger-ui-dist';
 
 const port = 8001;
 const repository_path = Path.join(Path.dirname(fileURLToPath(import.meta.url)), 'repository');
@@ -19,12 +20,16 @@ app.use(express.urlencoded({ extended: false }));
 // OpenAPI
 
 const openapi_spec_path = Path.join(Path.dirname(fileURLToPath(import.meta.url)), 'api.json');
-const openapi_spec = await fs.readFile(openapi_spec_path);
 
-app.get('/', (req, res, next) => {
-    res.setHeader('content-type', 'application/json');
-    res.status(200).send(openapi_spec);
-})
+// Swagger UI
+const swagger_ui_initializer = (await fs.readFile(Path.join(swagger_ui.absolutePath(),'swagger-initializer.js')))
+  .toString()
+  .replace("https://petstore.swagger.io/v2/swagger.json", "/openapi");
+app.get("/swagger-initializer.js", (req, res) => {
+    res.setHeader('content-type', 'text/javascript');
+    res.status(200).send(swagger_ui_initializer);
+});
+app.use(express.static(swagger_ui.absolutePath()))
 
 app.use('/openapi', express.static(openapi_spec_path));
 
