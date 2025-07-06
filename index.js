@@ -7,7 +7,7 @@ import swagger_ui from 'swagger-ui-dist';
 
 const port = 8001;
 const repository_path = Path.join(Path.dirname(fileURLToPath(import.meta.url)), 'repository');
-const data_path = '/data/apps';
+const data_path = '/repository';
 
 const app = new express();
 
@@ -22,9 +22,9 @@ app.use(express.urlencoded({ extended: false }));
 const openapi_spec_path = Path.join(Path.dirname(fileURLToPath(import.meta.url)), 'api.json');
 
 // Swagger UI
-const swagger_ui_initializer = (await fs.readFile(Path.join(swagger_ui.absolutePath(),'swagger-initializer.js')))
-  .toString()
-  .replace("https://petstore.swagger.io/v2/swagger.json", "/openapi");
+const swagger_ui_initializer = (await fs.readFile(Path.join(swagger_ui.absolutePath(), 'swagger-initializer.js')))
+    .toString()
+    .replace("https://petstore.swagger.io/v2/swagger.json", "/openapi");
 app.get("/swagger-initializer.js", (req, res) => {
     res.setHeader('content-type', 'text/javascript');
     res.status(200).send(swagger_ui_initializer);
@@ -33,7 +33,7 @@ app.use(express.static(swagger_ui.absolutePath()))
 
 app.use('/openapi', express.static(openapi_spec_path));
 
-app.use(data_path, express.static(Path.join(repository_path, 'apps')));
+app.use(data_path, express.static(repository_path));
 
 app.use(
     OpenApiValidator.middleware({
@@ -70,19 +70,18 @@ class Repository {
     }
 
     async load_index() {
-        this.index = JSON.parse(await fs.readFile(Path.join(this.repository_path, 'index.json')), { encoding: 'utf8' });
+        this.index = JSON.parse(await fs.readFile('repository_index.json'), { encoding: 'utf8' });
     }
 
     async load_apps() {
         this.apps = {};
-        let app_folders = await fs.readdir(Path.join(this.repository_path, 'apps'));
+        let app_folders = (await fs.readdir(this.repository_path, { withFileTypes: true })).filter(dirent => dirent.isDirectory() && !dirent.name.startsWith('.')).map(dirent => dirent.name);
         for (let index in app_folders) {
             let slug = app_folders[index];
-            let metadata = JSON.parse(await fs.readFile(Path.join(this.repository_path, 'apps', slug, 'metadata.json')), { encoding: 'utf8' });
-            let files = JSON.parse(await fs.readFile(Path.join(this.repository_path, 'apps', slug, 'files.json')), { encoding: 'utf8' });
+            let metadata = JSON.parse(await fs.readFile(Path.join(this.repository_path, slug, 'metadata.json')), { encoding: 'utf8' });
+            metadata.slug = slug; // Add slug to metadata
             let app = {
-                metadata: metadata,
-                files: files
+                metadata: metadata
             };
             this.apps[slug] = app;
         }
@@ -107,13 +106,6 @@ class Repository {
     async get_app_metadata(slug) {
         if (slug in this.apps) {
             return this.apps[slug].metadata;
-        }
-        return null;
-    }
-
-    async get_app_files(slug) {
-        if (slug in this.apps) {
-            return this.apps[slug].files;
         }
         return null;
     }
@@ -169,21 +161,6 @@ app.get('/apps/:slug', async (req, res, next) => {
         return;
     }
     res.json(app);
-});
-
-app.get('/apps/:slug/files', async (req, res, next) => {
-    let files = await repository.get_app_files(req.params.slug);
-    if (files === null) {
-        res.status(404).json({
-            message: 'app not found',
-            errors: [{
-                path: req.path,
-                message: 'app not found'
-            }],
-        });
-        return;
-    }
-    res.json(files);
 });
 
 app.get('/categories', async (req, res, next) => {
