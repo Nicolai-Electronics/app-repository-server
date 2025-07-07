@@ -29,3 +29,11 @@ jobs:
           remote-user:   ${{ vars.SSH_USER }}
           private-ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
           destination-path: ${{ vars.WEBROOT }}
+      - name: Execute remote SSH commands using password
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ vars.HOST }}
+          port: ${{ vars.SSH_PORT }}
+          username: ${{ vars.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: "cd ${{ vars.WEBROOT }} && rm -rf node_modules && npm install"

@@ -70,7 +70,32 @@ class Repository {
     }
 
     async load_index() {
-        this.index = JSON.parse(await fs.readFile('repository_index.json'), { encoding: 'utf8' });
+        this.index = {
+            categories: {}
+        };
+
+        let directories = (await fs.readdir("repository", { withFileTypes: true })).filter(dirent => dirent.isDirectory() && !dirent.name.startsWith('.')).map(dirent => dirent.name);
+        for (let directory_index in directories) {
+            let directory = directories[directory_index];
+            try {
+                console.log("Processing app", directory);
+                let metadata = JSON.parse(await fs.readFile(Path.join("repository", directory, "metadata.json")));
+                for (let category_index in metadata.categories) {
+                    let category = metadata.categories[category_index];
+                    let category_slug = category.toLowerCase().replace(" ", "_");
+                    if (!(category_slug in this.index.categories)) {
+                        console.log("Added category", category_slug);
+                        this.index.categories[category_slug] = {
+                            name: category,
+                            apps: []
+                        };
+                    }
+                    this.index.categories[category_slug].apps.push(directory);
+                }
+            } catch (e) {
+                console.error("Failed to add index entry for", directory, ":", e);
+            }
+        }
     }
 
     async load_apps() {
