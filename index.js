@@ -90,7 +90,7 @@ class Repository {
                             apps: []
                         };
                     }
-                    this.index.categories[category_slug].apps.push(directory);
+                    this.index.categories[category_slug].apps.push(directory); // Add slug to metadata
                 }
             } catch (e) {
                 console.error("Failed to add index entry for", directory, ":", e);
@@ -142,8 +142,10 @@ let repository = new Repository(repository_path);
 
 app.get('/apps', async (req, res, next) => {
     // Parameters
-    let offset = (typeof req.query.offset === 'number') ? req.query.offset : 0;
-    let amount = (typeof req.query.amount === 'number') ? req.query.amount : null;
+    let offset = ("offset" in req.query) ? Number(req.query.offset) : 0;
+    if (offset === NaN) offset = 0;
+    let amount = ("amount" in req.query) ? Number(req.query.amount) : null;
+    if (amount === NaN) amount = 0;
     let category_name = (typeof req.query.category === 'string') ? req.query.category : null;
 
     // Function
@@ -162,7 +164,7 @@ app.get('/apps', async (req, res, next) => {
     if (amount === null) {
         amount = app_slugs.length;
     }
-    app_slugs = app_slugs.slice(offset, amount);
+    app_slugs = app_slugs.slice(offset, offset + amount);
 
     let apps = [];
     for (let index in app_slugs) {

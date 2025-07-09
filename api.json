@@ -160,6 +160,13 @@
                 "description": "Information about an application package",
                 "type": "object",
                 "properties": {
+                    "slug": {
+                        "type": "string",
+                        "description": "Slug name of the app",
+                        "maxLength": 128,
+                        "minLength": 3,
+                        "pattern": "^[A-Za-z0-9_]+$"
+                    },
                     "name": {
                         "type": "string",
                         "description": "Name of the application",
