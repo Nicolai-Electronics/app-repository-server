@@ -1,0 +1,11 @@
+[Unit]
+Description=Repository server
+
+[Service]
+User=ci
+Group=ci
+ExecStart=node index.js
+WorkingDirectory=/srv/http/server
+
+[Install]
+WantedBy=multi-user.target

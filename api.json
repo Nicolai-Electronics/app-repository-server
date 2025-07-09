@@ -174,11 +174,15 @@
                         "minLength": 0,
                         "pattern": "^[A-Za-z0-9_\\- .!@#$%^&*()\\/\\\\]+$"
                     },
-                    "categories": {},
+                    "categories": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
                     "version": {
-                        "type": "integer",
-                        "description": "Latest published package version",
-                        "minimum": 1
+                        "type": "string",
+                        "description": "Semantic version of the application package"
                     },
                     "icon": {
                         "type": "object",
@@ -194,14 +198,18 @@
                             }
                         },
                         "minProperties": 1,
-                        "additionalProperties": false
+                        "additionalProperties": true
                     },
                     "author": {
                         "description": "Author of the app",
                         "type": "string"
                     },
-                    "license": {
+                    "license_type": {
                         "description": "License of the app as SPDX license identifier",
+                        "type": "string"
+                    },
+                    "license_file": {
+                        "description": "Filename for a license text file",
                         "type": "string"
                     },
                     "application": {
@@ -218,17 +226,39 @@
                                 "type": {
                                     "type": "string"
                                 },
+                                "revision": {
+                                    "type": "integer"
+                                },
                                 "executable": {
+                                    "type": "string"
+                                },
+                                "interpreter": {
                                     "type": "string"
                                 },
                                 "assets": {
                                     "type": "array",
                                     "items": {
-                                        "type": "string"
+                                        "type": "object",
+                                        "properties": {
+                                            "source_file": {
+                                                "type": "string"
+                                            },
+                                            "destination_file": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "required": [
+                                            "source_file",
+                                            "destination_file"
+                                        ]
                                     }
                                 }
                             },
-                            "additionalProperties": false
+                            "additionalProperties": false,
+                            "required": [
+                                "targets",
+                                "type"
+                            ]
                         },
                         "minItems": 1
                     }
@@ -240,22 +270,21 @@
                     "version",
                     "icon",
                     "author",
-                    "license",
+                    "license_type",
                     "application"
                 ],
                 "additionalProperties": false,
                 "example": {
-                    "slug": "my_app",
                     "name": "My app",
                     "description": "Demonstration app for demonstrating the API",
-                    "version": 1,
+                    "version": "1.0.0",
                     "icon": {
                         "16x16": "icon16.png",
                         "32x32": "icon32.png",
                         "64x64": "icon64.png"
                     },
                     "author": "Henk de Vries",
-                    "license": "MIT",
+                    "license_type": "MIT",
                     "application": [
                         {
                             "targets": [
@@ -263,8 +292,14 @@
                                 "konsool"
                             ],
                             "type": "appfs",
+                            "revision": 1,
                             "executable": "tanmatsu.bin",
-                            "assets": []
+                            "assets": [
+                                {
+                                    "source_file": "picture.png",
+                                    "destination_file": "picture.png"
+                                }
+                            ]
                         }
                     ]
                 }
