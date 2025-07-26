@@ -17,12 +17,16 @@
     "servers": [
         {
             "url": "https://apps.tanmatsu.cloud/v1",
-            "description": "Tanmatsu apps repository"
+            "description": "Tanmatsu application repository"
+        },
+        {
+            "url": "http://localhost:8001",
+            "description": "Development server"
         }
     ],
     "paths": {
-        "/apps/{slug}": {
-            "summary": "Request the metadata of a specific app",
+        "/projects/{slug}": {
+            "summary": "Request the metadata of a specific project",
             "get": {
                 "parameters": [
                     {
@@ -39,11 +43,11 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/app"
+                                    "$ref": "#/components/schemas/project"
                                 }
                             }
                         },
-                        "description": "A single app object"
+                        "description": "A single project object"
                     },
                     "404": {
                         "content": {
@@ -58,8 +62,8 @@
                 }
             }
         },
-        "/apps": {
-            "summary": "Request a list of apps",
+        "/projects": {
+            "summary": "Request a list of projects",
             "get": {
                 "responses": {
                     "200": {
@@ -68,12 +72,28 @@
                                 "schema": {
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/components/schemas/app"
+                                        "type": "object",
+                                        "properties": {
+                                            "slug": {
+                                                "type": "string",
+                                                "description": "Slug name of the project",
+                                                "maxLength": 128,
+                                                "minLength": 3,
+                                                "pattern": "^[A-Za-z0-9_.]+$"
+                                            },
+                                            "project": {
+                                                "$ref": "#/components/schemas/project"
+                                            }
+                                        },
+                                        "required": [
+                                            "slug",
+                                            "project"
+                                        ]
                                     }
                                 }
                             }
                         },
-                        "description": "A list of app objects"
+                        "description": "A list of project objects"
                     },
                     "404": {
                         "content": {
@@ -118,7 +138,7 @@
             ]
         },
         "/categories": {
-            "summary": "Get the list of app categories",
+            "summary": "Get the list of project categories",
             "get": {
                 "responses": {
                     "200": {
@@ -156,17 +176,10 @@
     },
     "components": {
         "schemas": {
-            "app": {
-                "description": "Information about an application package",
+            "project": {
+                "description": "Information about a project",
                 "type": "object",
                 "properties": {
-                    "slug": {
-                        "type": "string",
-                        "description": "Slug name of the app",
-                        "maxLength": 128,
-                        "minLength": 3,
-                        "pattern": "^[A-Za-z0-9_]+$"
-                    },
                     "name": {
                         "type": "string",
                         "description": "Name of the application",
@@ -176,7 +189,7 @@
                     },
                     "description": {
                         "type": "string",
-                        "description": "A short description of the app",
+                        "description": "A short description of the project",
                         "maxLength": 256,
                         "minLength": 0,
                         "pattern": "^[A-Za-z0-9_\\- .!@#$%^&*()\\/\\\\]+$"
@@ -194,6 +207,9 @@
                     "icon": {
                         "type": "object",
                         "properties": {
+                            "8x8": {
+                                "type": "string"
+                            },
                             "16x16": {
                                 "type": "string"
                             },
@@ -208,16 +224,23 @@
                         "additionalProperties": true
                     },
                     "author": {
-                        "description": "Author of the app",
+                        "description": "Author of the project",
                         "type": "string"
                     },
                     "license_type": {
-                        "description": "License of the app as SPDX license identifier",
+                        "description": "License of the project as SPDX license identifier",
                         "type": "string"
                     },
                     "license_file": {
                         "description": "Filename for a license text file",
                         "type": "string"
+                    },
+                    "repository": {
+                        "type": "string",
+                        "description": "Repository URL",
+                        "maxLength": 128,
+                        "minLength": 3,
+                        "pattern": "^[A-Za-z0-9_\\- .!@#$%^&*()\\/\\\\]+$"
                     },
                     "application": {
                         "type": "array",
@@ -282,8 +305,8 @@
                 ],
                 "additionalProperties": false,
                 "example": {
-                    "name": "My app",
-                    "description": "Demonstration app for demonstrating the API",
+                    "name": "My project",
+                    "description": "Demonstration project for demonstrating the API",
                     "version": "1.0.0",
                     "icon": {
                         "16x16": "icon16.png",

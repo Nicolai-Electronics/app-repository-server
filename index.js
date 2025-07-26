@@ -59,14 +59,14 @@ class Repository {
         this.index = {
             categories: {},
         };
-        this.apps = {};
+        this.projects = {};
         console.log('Repository path is ', this.repository_path);
         this.load();
     }
 
     async load() {
         await this.load_index();
-        await this.load_apps();
+        await this.load_projects();
     }
 
     async load_index() {
@@ -87,10 +87,10 @@ class Repository {
                         console.log("Added category", category_slug);
                         this.index.categories[category_slug] = {
                             name: category,
-                            apps: []
+                            projects: []
                         };
                     }
-                    this.index.categories[category_slug].apps.push(directory); // Add slug to metadata
+                    this.index.categories[category_slug].projects.push(directory); // Add slug to metadata
                 }
             } catch (e) {
                 console.error("Failed to add index entry for", directory, ":", e);
@@ -98,17 +98,16 @@ class Repository {
         }
     }
 
-    async load_apps() {
-        this.apps = {};
+    async load_projects() {
+        this.projects = {};
         let app_folders = (await fs.readdir(this.repository_path, { withFileTypes: true })).filter(dirent => dirent.isDirectory() && !dirent.name.startsWith('.')).map(dirent => dirent.name);
         for (let index in app_folders) {
             let slug = app_folders[index];
             let metadata = JSON.parse(await fs.readFile(Path.join(this.repository_path, slug, 'metadata.json')), { encoding: 'utf8' });
-            metadata.slug = slug; // Add slug to metadata
-            let app = {
-                metadata: metadata
+            this.projects[slug] = {
+                slug: slug,
+                project: metadata
             };
-            this.apps[slug] = app;
         }
     }
 
@@ -119,18 +118,11 @@ class Repository {
     async get_category(category = null) {
         if (category === null) {
             return {
-                name: 'All apps',
-                apps: Object.keys(this.apps),
+                name: 'All projects',
+                projects: Object.keys(this.projects),
             };
         } else if (category in this.index.categories) {
             return this.index.categories[category];
-        }
-        return null;
-    }
-
-    async get_app_metadata(slug) {
-        if (slug in this.apps) {
-            return this.apps[slug].metadata;
         }
         return null;
     }
@@ -140,7 +132,7 @@ let repository = new Repository(repository_path);
 
 // Routes
 
-app.get('/apps', async (req, res, next) => {
+app.get('/projects', async (req, res, next) => {
     // Parameters
     let offset = ("offset" in req.query) ? Number(req.query.offset) : 0;
     if (offset === NaN) offset = 0;
@@ -160,24 +152,23 @@ app.get('/apps', async (req, res, next) => {
         });
         return;
     }
-    let app_slugs = category.apps;
+    let slugs = category.projects;
     if (amount === null) {
-        amount = app_slugs.length;
+        amount = slugs.length;
     }
-    app_slugs = app_slugs.slice(offset, offset + amount);
+    slugs = slugs.slice(offset, offset + amount);
 
-    let apps = [];
-    for (let index in app_slugs) {
-        let slug = app_slugs[index];
-        apps.push(repository.get_app_metadata(slug));
+    let projects = [];
+    for (let index in slugs) {
+        let slug = slugs[index];
+        projects.push(repository.projects[slug]);
     }
 
-    res.json(await Promise.all(apps));
+    res.json(await Promise.all(projects));
 });
 
-app.get('/apps/:slug', async (req, res, next) => {
-    let app = await repository.get_app_metadata(req.params.slug);
-    if (app === null) {
+app.get('/projects/:slug', async (req, res, next) => {
+    if (repository.projects[req.params.slug] === null) {
         res.status(404).json({
             message: 'app not found',
             errors: [{
@@ -187,7 +178,7 @@ app.get('/apps/:slug', async (req, res, next) => {
         });
         return;
     }
-    res.json(app);
+    res.json(repository.projects[req.params.slug].project);
 });
 
 app.get('/categories', async (req, res, next) => {
