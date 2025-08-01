@@ -111,11 +111,11 @@ class Repository {
         }
     }
 
-    async get_categories() {
+    async get_categories(device = null) {
         return Object.keys(this.index.categories);
     }
 
-    async get_category(category = null) {
+    async get_category(category = null, device = null) {
         if (category === null) {
             return {
                 name: 'All projects',
@@ -139,9 +139,10 @@ app.get('/projects', async (req, res, next) => {
     let amount = ("amount" in req.query) ? Number(req.query.amount) : null;
     if (amount === NaN) amount = 0;
     let category_name = (typeof req.query.category === 'string') ? req.query.category : null;
+    let device_name = (typeof req.query.category === 'string') ? req.query.device : null;
 
     // Function
-    let category = await repository.get_category(category_name);
+    let category = await repository.get_category(category_name, device_name);
     if (category === null) {
         res.status(404).json({
             message: 'category not found',
@@ -182,7 +183,8 @@ app.get('/projects/:slug', async (req, res, next) => {
 });
 
 app.get('/categories', async (req, res, next) => {
-    let categories = await repository.get_categories();
+    let device_name = (typeof req.query.category === 'string') ? req.query.device : null;
+    let categories = await repository.get_categories(device_name);
     res.json(categories);
 });
 

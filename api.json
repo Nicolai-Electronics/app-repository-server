@@ -134,6 +134,15 @@
                     },
                     "in": "query",
                     "required": false
+                },
+                {
+                    "name": "device",
+                    "description": "Optional device filter",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": false
                 }
             ]
         },
@@ -154,7 +163,18 @@
                         },
                         "description": "List of category names"
                     }
-                }
+                },
+                "parameters": [
+                    {
+                        "name": "device",
+                        "description": "Optional device filter",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query",
+                        "required": false
+                    }
+                ]
             }
         },
         "/information": {
