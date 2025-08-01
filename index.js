@@ -9,6 +9,8 @@ const port = 8001;
 const repository_path = Path.join(Path.dirname(fileURLToPath(import.meta.url)), 'repository');
 const data_path = '/repository';
 
+const repository_version = (new Date()).toISOString().replaceAll("-", "").replaceAll("T", "").replaceAll(":", "").slice(0, -7);
+
 const app = new express();
 
 // Body parsers
@@ -190,7 +192,8 @@ app.get('/categories', async (req, res, next) => {
 
 app.get('/information', async (req, res, next) => {
     res.json({
-        "data_path": data_path
+        "data_path": data_path,
+        "version": repository_version,
     });
 });
 

@@ -407,8 +407,12 @@
                 "type": "object",
                 "properties": {
                     "data_path": {
-                        "description": "",
+                        "description": "Path to the repository files",
                         "type": "string"
+                    },
+                    "version": {
+                        "description": "Repository version",
+                        "type": "integer"
                     }
                 }
             }
