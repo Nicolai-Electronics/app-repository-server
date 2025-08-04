@@ -9,7 +9,7 @@ const port = 8001;
 const repository_path = Path.join(Path.dirname(fileURLToPath(import.meta.url)), 'repository');
 const data_path = '/repository';
 
-const repository_version = (new Date()).toISOString().replaceAll("-", "").replaceAll("T", "").replaceAll(":", "").slice(0, -7);
+const repository_version = Math.floor(new Date().getTime() / 1000);
 
 const app = new express();
 
