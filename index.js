@@ -171,7 +171,7 @@ app.get('/projects', async (req, res, next) => {
 });
 
 app.get('/projects/:slug', async (req, res, next) => {
-    if (repository.projects[req.params.slug] === null) {
+    if (typeof(repository.projects[req.params.slug]) !== 'object' || typeof(repository.projects[req.params.slug].project) !== 'object') {
         res.status(404).json({
             message: 'app not found',
             errors: [{
