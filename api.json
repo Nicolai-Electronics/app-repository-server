@@ -293,13 +293,13 @@
                                             "source_file": {
                                                 "type": "string"
                                             },
-                                            "destination_file": {
+                                            "target_file": {
                                                 "type": "string"
                                             }
                                         },
                                         "required": [
                                             "source_file",
-                                            "destination_file"
+                                            "target_file"
                                         ]
                                     }
                                 }
@@ -347,7 +347,7 @@
                             "assets": [
                                 {
                                     "source_file": "picture.png",
-                                    "destination_file": "picture.png"
+                                    "target_file": "picture.png"
                                 }
                             ]
                         }
