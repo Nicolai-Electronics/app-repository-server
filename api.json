@@ -79,7 +79,7 @@
                                                 "description": "Slug name of the project",
                                                 "maxLength": 128,
                                                 "minLength": 3,
-                                                "pattern": "^[A-Za-z0-9_\-.]+$"
+                                                "pattern": "^[A-Za-z0-9-_.]+$"
                                             },
                                             "project": {
                                                 "$ref": "#/components/schemas/project"
