@@ -272,3 +272,9 @@ app.get('/information', async (req, res, next) => {
 app.listen(port, () => {
     console.log(`Server running on ${port}`);
 });
+
+process.on('SIGINT', () => {
+  console.log('Server shutting down');
+  process.exit(0);
+});
+
