@@ -20,6 +20,14 @@ jobs:
         with:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ github.token }}
+      - name: Stop server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ vars.HOST }}
+          port: ${{ vars.SSH_PORT }}
+          username: ${{ vars.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: "sudo systemctl stop repository-server"
       - name: Deploy with Rsync
         uses: SamKirkland/web-deploy@v1
         with:
@@ -29,7 +37,7 @@ jobs:
           remote-user:   ${{ vars.SSH_USER }}
           private-ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
           destination-path: ${{ vars.WEBROOT }}
-      - name: Execute remote SSH commands using password
+      - name: Install
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ vars.HOST }}
@@ -37,3 +45,11 @@ jobs:
           username: ${{ vars.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: "cd ${{ vars.WEBROOT }} && rm -rf node_modules && npm install"
+      - name: Start server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ vars.HOST }}
+          port: ${{ vars.SSH_PORT }}
+          username: ${{ vars.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: "sudo systemctl start repository-server"
