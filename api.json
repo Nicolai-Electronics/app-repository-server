@@ -192,10 +192,114 @@
                     }
                 }
             }
+        },
+        "/signature/request": {
+            "summary": "Request a challenge to be signed by a device, to verify that it is genuine",
+            "post": {
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "mac_address": {
+                                        "$ref": "#/components/schemas/mac_address"
+                                    }
+                                },
+                                "required": [
+                                    "mac_address"
+                                ],
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "challenge": {
+                                            "type": "string",
+                                            "description": "64 bytes of random data, encoded as a hex string, to be signed by the device",
+                                            "pattern": "^[0-9a-fA-F]{128}$"
+                                        }
+                                    },
+                                    "required": [
+                                        "challenge"
+                                    ],
+                                    "additionalProperties": false
+                                }
+                            }
+                        },
+                        "description": "A challenge for the device to sign"
+                    }
+                }
+            }
+        },
+        "/signature/verify": {
+            "summary": "Verify a signature of a previously requested challenge for a device",
+            "post": {
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "mac_address": {
+                                        "$ref": "#/components/schemas/mac_address"
+                                    },
+                                    "signature": {
+                                        "type": "string",
+                                        "description": "64 byte ECDSA signature of the challenge, encoded as a hex string",
+                                        "pattern": "^[0-9a-fA-F]{128}$"
+                                    }
+                                },
+                                "required": [
+                                    "mac_address",
+                                    "signature"
+                                ],
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "verified": {
+                                            "type": "boolean",
+                                            "description": "True when the signature was successfully verified, false in all other cases"
+                                        }
+                                    },
+                                    "required": [
+                                        "verified"
+                                    ],
+                                    "additionalProperties": false
+                                }
+                            }
+                        },
+                        "description": "Result of the signature verification"
+                    }
+                }
+            }
         }
     },
     "components": {
         "schemas": {
+            "mac_address": {
+                "description": "A 6 byte MAC address, encoded as a hex string",
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{12}$"
+            },
             "project": {
                 "description": "Information about a project",
                 "type": "object",

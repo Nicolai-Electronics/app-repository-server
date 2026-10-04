@@ -7,9 +7,11 @@ import swagger_ui from 'swagger-ui-dist';
 
 const port = 8001;
 let repository_path = Path.join(Path.dirname(fileURLToPath(import.meta.url)), 'repository');
+let key_path = Path.join(Path.dirname(fileURLToPath(import.meta.url)), 'keys');
 const data_path = '/repository';
 
 repository_path = (typeof process.argv[2] === "string") ? process.argv[2] : repository_path;
+key_path = (typeof process.argv[3] === "string") ? process.argv[3] : key_path;
 const repository_version = Math.floor(new Date().getTime() / 1000);
 
 const app = new express();
@@ -265,6 +267,76 @@ app.get('/information', async (req, res, next) => {
         "data_path": data_path,
         "version": repository_version,
     });
+});
+
+// Signature
+
+async function verify_signature(public_key, signature, data) {
+  return await crypto.subtle.verify(
+    {
+      name: "ECDSA",
+      hash: { name: "SHA-256" },
+    },
+    public_key,
+    signature,
+    data,
+  );
+}
+
+async function load_public_key(mac_address) {
+  if (typeof mac_address !== 'string' || !/^[0-9a-fA-F]{12}$/.test(mac_address)) {
+    throw new Error('Invalid MAC address');
+  }
+  let keyData = await fs.readFile(Path.join(key_path, mac_address + ".pub"));
+  return await crypto.subtle.importKey("raw", keyData, {name: "ECDSA", namedCurve: "P-256"}, true, ["verify"]);
+}
+
+const pending_challenges = {};
+
+function store_challenge(mac_address, challenge) {
+  if (mac_address in pending_challenges) {
+    clearTimeout(pending_challenges[mac_address].timeout);
+  }
+  pending_challenges[mac_address] = {
+    challenge,
+    // Challenges are single-use: drop them if nobody verifies within a minute.
+    timeout: setTimeout(() => { delete pending_challenges[mac_address]; }, 60000),
+  };
+}
+
+function take_challenge(mac_address) {
+  let pending = pending_challenges[mac_address];
+  if (pending === undefined) {
+    return null;
+  }
+  clearTimeout(pending.timeout);
+  delete pending_challenges[mac_address];
+  return pending.challenge;
+}
+
+app.post('/signature/request', async (req, res, next) => {
+  let mac_address = req.body.mac_address.toLowerCase();
+  let challenge = crypto.getRandomValues(new Uint8Array(64));
+  store_challenge(mac_address, challenge);
+  res.json({ challenge: Buffer.from(challenge).toString('hex') });
+});
+
+app.post('/signature/verify', async (req, res, next) => {
+  let mac_address = req.body.mac_address.toLowerCase();
+  let signature = req.body.signature;
+  let challenge = take_challenge(mac_address);
+
+  let verified = false;
+  if (challenge !== null) {
+    try {
+      let public_key = await load_public_key(mac_address);
+      verified = await verify_signature(public_key, Buffer.from(signature, 'hex'), challenge);
+    } catch (e) {
+      verified = false;
+    }
+  }
+
+  res.json({ verified });
 });
 
 // Server
