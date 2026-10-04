@@ -14,6 +14,9 @@ repository_path = (typeof process.argv[2] === "string") ? process.argv[2] : repo
 key_path = (typeof process.argv[3] === "string") ? process.argv[3] : key_path;
 const repository_version = Math.floor(new Date().getTime() / 1000);
 
+console.log(`Repository path: ${repository_path}`);
+console.log(`Key path: ${key_path}`);
+
 const app = new express();
 
 // Body parsers
@@ -300,7 +303,10 @@ function store_challenge(mac_address, challenge) {
   pending_challenges[mac_address] = {
     challenge,
     // Challenges are single-use: drop them if nobody verifies within a minute.
-    timeout: setTimeout(() => { delete pending_challenges[mac_address]; }, 60000),
+    timeout: setTimeout(() => {
+      delete pending_challenges[mac_address];
+      console.log(`[signature] challenge expired for ${mac_address}`);
+    }, 60000),
   };
 }
 
@@ -318,6 +324,7 @@ app.post('/signature/request', async (req, res, next) => {
   let mac_address = req.body.mac_address.toLowerCase();
   let challenge = crypto.getRandomValues(new Uint8Array(64));
   store_challenge(mac_address, challenge);
+  console.log(`[signature] challenge requested for ${mac_address}`);
   res.json({ challenge: Buffer.from(challenge).toString('hex') });
 });
 
@@ -326,14 +333,31 @@ app.post('/signature/verify', async (req, res, next) => {
   let signature = req.body.signature;
   let challenge = take_challenge(mac_address);
 
+  console.log(`[signature] verification attempted for ${mac_address}`);
+
   let verified = false;
   if (challenge !== null) {
+    let public_key = null;
     try {
-      let public_key = await load_public_key(mac_address);
-      verified = await verify_signature(public_key, Buffer.from(signature, 'hex'), challenge);
+      public_key = await load_public_key(mac_address);
     } catch (e) {
-      verified = false;
+      console.log(`[signature] verification failed for ${mac_address}: no public key found`);
     }
+
+    if (public_key !== null) {
+      try {
+        verified = await verify_signature(public_key, Buffer.from(signature, 'hex'), challenge);
+        if (verified) {
+          console.log(`[signature] verification succeeded for ${mac_address}`);
+        } else {
+          console.log(`[signature] verification failed for ${mac_address}: verification failed`);
+        }
+      } catch (e) {
+        console.log(`[signature] verification failed for ${mac_address}: verification failed`);
+      }
+    }
+  } else {
+    console.log(`[signature] verification failed for ${mac_address}: no challenge found`);
   }
 
   res.json({ verified });

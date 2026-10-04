@@ -4,7 +4,7 @@ Description=Repository server
 [Service]
 User=ci
 Group=ci
-ExecStart=node index.js
+ExecStart=node index.js /srv/http/repository /srv/http/keys
 WorkingDirectory=/srv/http/server
 
 [Install]
