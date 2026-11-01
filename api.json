@@ -431,12 +431,9 @@
                         "description": "Filename for a license text file",
                         "type": "string"
                     },
-                    "repository": {
+                    "repository_url": {
                         "type": "string",
-                        "description": "Repository URL",
-                        "maxLength": 128,
-                        "minLength": 3,
-                        "pattern": "^[A-Za-z0-9_\\- .!@#$%^&*()\\/\\\\]+$"
+                        "description": "URL of the repository containing the source code of the app"
                     },
                     "application": {
                         "type": "array",
@@ -453,6 +450,10 @@
                                     "type": "string"
                                 },
                                 "revision": {
+                                    "type": "integer"
+                                },
+                                "bsp_version": {
+                                    "description": "Major BSP version used to build this application, used to indicate support for newer hardware",
                                     "type": "integer"
                                 },
                                 "executable": {
