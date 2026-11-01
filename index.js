@@ -217,6 +217,10 @@ app.get('/projects', async (req, res, next) => {
     if (amount === NaN) amount = 0;
     let category_name = (typeof req.query.category === 'string') ? req.query.category : null;
     let device_name = (typeof req.query.device === 'string') ? req.query.device : null;
+    let board_revision = ("board_revision" in req.query) ? Number(req.query.board_revision) : null;
+    let firmware_version = (typeof req.query.firmware_version === 'string') ? req.query.firmware_version : null;
+    let mac_address = (typeof req.query.mac_address === 'string') ? req.query.mac_address : null;
+    let lcd2 = ("lcd2" in req.query) ? (req.query.lcd2 === 'true') : null;
 
     // Function
     let category = await repository.get_category(category_name, device_name);
@@ -261,6 +265,10 @@ app.get('/projects/:slug', async (req, res, next) => {
 
 app.get('/categories', async (req, res, next) => {
     let device_name = (typeof req.query.device === 'string') ? req.query.device : null;
+    let board_revision = ("board_revision" in req.query) ? Number(req.query.board_revision) : null;
+    let firmware_version = (typeof req.query.firmware_version === 'string') ? req.query.firmware_version : null;
+    let mac_address = (typeof req.query.mac_address === 'string') ? req.query.mac_address : null;
+    let lcd2 = ("lcd2" in req.query) ? (req.query.lcd2 === 'true') : null;
     let categories = await repository.get_categories(device_name);
     res.json(categories);
 });

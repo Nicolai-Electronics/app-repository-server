@@ -143,6 +143,42 @@
                     },
                     "in": "query",
                     "required": false
+                },
+                {
+                    "name": "board_revision",
+                    "description": "Optional hardware revision number of the requesting device",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "in": "query",
+                    "required": false
+                },
+                {
+                    "name": "firmware_version",
+                    "description": "Optional firmware version of the requesting device",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": false
+                },
+                {
+                    "name": "mac_address",
+                    "description": "Optional MAC address of the requesting device",
+                    "schema": {
+                        "$ref": "#/components/schemas/mac_address"
+                    },
+                    "in": "query",
+                    "required": false
+                },
+                {
+                    "name": "lcd2",
+                    "description": "Optional flag indicating whether the requesting device has the second LCD panel variant (Tanmatsu only)",
+                    "schema": {
+                        "type": "boolean"
+                    },
+                    "in": "query",
+                    "required": false
                 }
             ]
         },
@@ -170,6 +206,42 @@
                         "description": "Optional device filter",
                         "schema": {
                             "type": "string"
+                        },
+                        "in": "query",
+                        "required": false
+                    },
+                    {
+                        "name": "board_revision",
+                        "description": "Optional hardware revision number of the requesting device",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "in": "query",
+                        "required": false
+                    },
+                    {
+                        "name": "firmware_version",
+                        "description": "Optional firmware version of the requesting device",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query",
+                        "required": false
+                    },
+                    {
+                        "name": "mac_address",
+                        "description": "Optional MAC address of the requesting device",
+                        "schema": {
+                            "$ref": "#/components/schemas/mac_address"
+                        },
+                        "in": "query",
+                        "required": false
+                    },
+                    {
+                        "name": "lcd2",
+                        "description": "Optional flag indicating whether the requesting device has the second LCD panel variant (Tanmatsu only)",
+                        "schema": {
+                            "type": "boolean"
                         },
                         "in": "query",
                         "required": false
