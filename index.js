@@ -32,7 +32,7 @@ const openapi_spec_path = Path.join(Path.dirname(fileURLToPath(import.meta.url))
 // Swagger UI
 const swagger_ui_initializer = (await fs.readFile(Path.join(swagger_ui.absolutePath(), 'swagger-initializer.js')))
     .toString()
-    .replace("https://petstore.swagger.io/v2/swagger.json", "/openapi");
+    .replace("https://petstore.swagger.io/v2/swagger.json", "/v1/openapi");
 app.get("/swagger-initializer.js", (req, res) => {
     res.setHeader('content-type', 'text/javascript');
     res.status(200).send(swagger_ui_initializer);
